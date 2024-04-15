@@ -25,10 +25,10 @@ code {
   border: 1px solid rgba(0, 0, 0, 0.3);
   max-width: 1894px;
   overflow: scroll;
-  margin: 50px auto;
+  margin: 46px auto;
   box-shadow: 0 0 40px 0 rgba(0,0,0,.15);
   border-radius: 10px;
-  height: 940px;
+  height: 690px;
 }
 
 thead {
@@ -41,6 +41,7 @@ thead {
 .table {
   border-collapse: separate;
   border-spacing: 0;
+  font-size: 12px;
 }
 
 .table td {
@@ -52,11 +53,11 @@ thead {
 }
 
 .table__title {
-  padding: 16px;
+  padding: 10px;
 }
 
 .table__title-date {
-  padding: 0 46px;
+  padding: 0 34px;
 }
 
 .table__title-border {
@@ -85,18 +86,21 @@ thead {
   display: flex;
   flex-direction: column;
   width: 150px;
-  margin-right: 20px
+  /* margin-right: 20px; */
+  align-items: center;
 }
 
 .dates__title {
+  font-size: 14px;
   margin-bottom: 10px;
 }
 
 .dates__date {
+  max-width: 114px;
   border: 2px solid rgba(0, 0, 0, 0.6);
   border-radius: 3px;
   font-family: sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   padding: 4px;
 }
 
@@ -104,11 +108,12 @@ thead {
   border: 2px solid rgba(0, 0, 0, 0.6);
   border-radius: 3px;
   font-family: sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   background: none;
-  padding: 0 6px;
-  height: 40px;
-  margin-top: 20px;
+  padding: 0 8px;
+  height: 32px;
+  margin-top: 25px;
+  margin-left: 26px;
 }
 
 .dates__button:hover {
