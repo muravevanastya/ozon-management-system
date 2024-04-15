@@ -18,14 +18,14 @@ code {
 }
 
 .dates {
-  margin-top: 34px;
+  margin-top: 26px;
 }
 
 .body {
   border: 1px solid rgba(0, 0, 0, 0.3);
   max-width: 1894px;
   overflow: scroll;
-  margin: 46px auto;
+  margin: 38px auto;
   box-shadow: 0 0 40px 0 rgba(0,0,0,.15);
   border-radius: 10px;
   height: 690px;
