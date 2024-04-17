@@ -119,113 +119,85 @@ function App() {
 
   // useEffect(() => {
     async function fetchSalesSpeedForWarehouses() {
-      // const fetchSalesSpeedForWarehouses = useCallback(async () => {
-
       await new Promise(resolve => setTimeout(resolve, 100));
-
+    
       try {
         setSalesInWarehouses([])
         const statusList = [
           "awaiting_packaging",
           "awaiting_deliver",
-          "delivering", 
-          "delivered"
+          "delivering",
+          "delivered",
         ];
         const allSalesSpeedData = [];
         const warehouseIds = warehouses.map(warehouse => warehouse.warehouse_id.toString());
-        // const warehouseIds = warehouses.filter(warehouse => warehouse.warehouse_id != null).map(warehouse => warehouse.warehouse_id.toString());
-
-        // const today = new Date();
-        // today.setHours(today.getUTCHours() + 3);
-        // const weekStartDate = new Date(today);
-        // weekStartDate.setDate(today.getDate() - 7)
-        // weekStartDate.setHours(0, 0, 0, 0);
-        // today.setDate(today.getDate() - 1)
-
-        const sinceDate = new Date(startDate).toISOString();
-        // const endDate = moment.tz('Europe/Moscow').toISOString();
-        const endDateObj = new Date(endDate);
-        endDateObj.setUTCHours(23, 59, 59, 0); // Устанавливаем часы на 23, минуты на 59, секунды и миллисекунды на 0
-        const toDate = endDateObj.toISOString();
-        
-        // const toDate = new Date(endDate).toISOString()
-        // const toDate = new Date(endDate).toISOString();
-        // today.setHours(today.getUTCHours() + 3);
-//         const sinceDate = convertDateToUTCString(startDate); // Преобразование выбранной пользователем даты
-// const toDate = convertDateToUTCString(endDate);
-
-        
-        const chunkSize = 2; // Размер части, с которым API работает корректно
-        for (let i = 0; i < warehouseIds.length; i += chunkSize) {
-          const warehouseIdsChunk = warehouseIds.slice(i, i + chunkSize);
-          const salesSpeedPromises = statusList.map(async (status) => {
-            if (warehouseIds.length > 0) {
-              const response = await fetch('https://api-seller.ozon.ru/v3/posting/fbs/list', {
-                method: 'POST',
-                headers: {
-                  'Content-type': 'application/json',
-                  'Api-Key': API_KEY,
-                  'Client-Id': SELLER_ID
-                },
-                body: JSON.stringify({
-                  "dir": "ASC",
-                  "filter": {
-                    "since": sinceDate,
-                    // "since": startDate.toISOString(),
-                    // "since": weekStartDate.toISOString(),
-                    // "since": "2024-03-23T00:00:00.000Z",
-                    "status": status,
-                    "to": toDate,
-                    // "to": endDate.toISOString(),
-                    // "to": today.toISOString(),
-                    // "to": "2024-03-29T23:59:00.000Z",
-                    "warehouse_id": warehouseIdsChunk
-                    // "warehouse_id": ["1020000964079000"]
-                  },
-                  "limit": 1000,
-                  "offset": 0
-                })
-              });
-              
-              const data = await response.json();
-              const processedOrderIds = [];
-              if (data && data.result && data.result.postings) {
-                data.result.postings.forEach(operation => {
-                  if (!processedOrderIds.includes(operation.order_id)) {
-                    const salesSpeedData = {
-                      salesSkus: operation.products.map(product => product.sku),
-                      salesQuantities: operation.products.map(product => product.quantity),
-                      salesOrderId: operation.order_id,
-                      // salesStatus: operation.status,
-                      salesWarehouseId: operation.delivery_method.warehouse_id,
-                      // posting_number: operation.posting_number,
-                    };
-                    allSalesSpeedData.push(salesSpeedData);
-                    processedOrderIds.push(operation.order_id);
-                  }
-                });
-              }
-            }
-            // await Promise.all(salesSpeedPromises);
+        const startDateObj = new Date(startDate); // Start date object
+        const endDateObj = new Date(endDate); // End date object
+        // const chunkSize = 2; // Chunk size for API requests
     
-          })
+        // Iterate over each day within the specified period
+        for (let currentDate = new Date(startDateObj); currentDate <= endDateObj; currentDate.setDate(currentDate.getDate() + 1)) {
+          // const sinceDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()).toISOString(); // Start date for current day
+          // const toDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()).toISOString(); // End date for current day
+        const currentDateStr = currentDate.toISOString().slice(0, 10);
+          // toDate.setUTCHours(23, 59, 59, 999)
+          // Loop through warehouseIds in chunks to prevent exceeding API request limit
+          // for (let i = 0; i < warehouseIds.length; i += chunkSize) {
+            // const warehouseIdsChunk = warehouseIds.slice(i, i + chunkSize);
+            const salesSpeedPromises = statusList.map(async (status) => {
+              if (warehouseIds.length > 0) {
+                const response = await fetch('https://api-seller.ozon.ru/v3/posting/fbs/list', {
+                  method: 'POST',
+                  headers: {
+                    'Content-type': 'application/json',
+                    'Api-Key': API_KEY,
+                    'Client-Id': SELLER_ID
+                  },
+                  body: JSON.stringify({
+                    "dir": "ASC",
+                    "filter": {
+                      "since": currentDateStr + "T00:00:00.000Z",
+                      "status": status,
+                      "to": currentDateStr + "T23:59:59.999Z",
+                      "warehouse_id": warehouseIds
+                    },
+                    "limit": 1000,
+                    "offset": 0
+                  })
+                });
+    
+                const data = await response.json();
+                const processedOrderIds = [];
+    
+                if (data && data.result && data.result.postings) {
+                  data.result.postings.forEach(operation => {
+                    if (!processedOrderIds.includes(operation.order_id)) {
+                      const salesSpeedData = {
+                        salesSkus: operation.products.map(product => product.sku),
+                        salesQuantities: operation.products.map(product => product.quantity),
+                        salesOrderId: operation.order_id,
+                        salesWarehouseId: operation.delivery_method.warehouse_id,
+                      };
+                      allSalesSpeedData.push(salesSpeedData);
+                      processedOrderIds.push(operation.order_id);
+                    }
+                  });
+                }
+              }
+            });
+            // console.log([currentDateStr + "T00:00:00.000Z", currentDateStr + "T23:59:59.999Z"]);
             await Promise.all(salesSpeedPromises);
-
-        }
-
-      // let indeh = 0;
-        // console.log(allSalesSpeedData); 
-        // console.log(warehouseIds);
-        console.log(sinceDate, toDate);
-        // console.log(today, weekStartDate);
+          }
+        // }
+    
         setSalesInWarehouses(allSalesSpeedData)
         saveDataToStorage('salesForWarehouses', allSalesSpeedData);
-        // console.log('salesForWarehouses');
-
       } catch (error) {
         console.error('Error fetching sales speed for warehouses: ', error);
       }
     }
+    
+    
     // }, [warehouses, startDate])
 
     // fetchSalesSpeedForWarehouses()
@@ -403,7 +375,7 @@ function App() {
   
       setMaxSales(maxSalesData);
       saveDataToStorage('maxSales', maxSalesData);
-      console.log(maxSalesData);
+      // console.log(maxSalesData);
   
     } catch (error) {
       console.error('Error fetching max sales: ', error);
@@ -711,7 +683,8 @@ function App() {
     } else {
       salesSpeed = salesSpeed.toFixed(1)
     }
-  
+    console.log(totalDays);
+
     return salesSpeed
   }
 
@@ -727,7 +700,7 @@ function App() {
         sale.salesSkus.forEach((sku, index) => {
           if (sku === skuEntry.sku) {
             const quantity = sale.salesQuantities[index];
-            totalSales += quantity;
+            totalSales += quantity ;
           }
         })
     //   }
@@ -741,7 +714,7 @@ function App() {
     } else {
       salesSpeed = salesSpeed.toFixed(1)
     }
-  
+    // console.log(totalDays);
     return salesSpeed
   }
 
