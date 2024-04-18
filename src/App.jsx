@@ -1,6 +1,7 @@
 import './App.css';
 import React, { useState, useEffect } from 'react';
 import config from './config'
+import * as XLSX from 'xlsx';
 // const moment = require('moment-timezone');
 
 
@@ -937,6 +938,14 @@ function App() {
   // }
   
   
+  const handleExportToExcel = () => {
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.table_to_sheet(document.querySelector('.table'));
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+    XLSX.writeFile(workbook, 'ozon_table_data.xlsx');
+  };
 
   return (
     <div className='App'>
@@ -950,6 +959,7 @@ function App() {
           <input className='dates__date' type="date" id="end_date" defaultValue={endDate}/>
         </div>
         <button className='dates__button' onClick={handleUpdateData}>Обновить данные</button>
+        <button className='dates__button' onClick={handleExportToExcel}>Скачать .xlsx</button>
       </div>
       <div className='body'>
         <table className='table'>
