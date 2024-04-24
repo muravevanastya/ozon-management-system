@@ -2,6 +2,7 @@ import './App.css';
 import React, { useState, useEffect } from 'react';
 import config from './config'
 import * as XLSX from 'xlsx';
+
 // const moment = require('moment-timezone');
 
 
@@ -26,7 +27,7 @@ function App() {
   const [endDate, setEndDate] = useState(localStorage.getItem('endDate') || today);
 
   const [sortOrder, setSortOrder] = useState("asc");
-  const [maxSalesSortOrder, setMaxSalesSortOrder] = useState("desc");
+  const [maxSalesSortOrder, setMaxSalesSortOrder] = useState('asc');
   
 
 
@@ -644,14 +645,6 @@ function App() {
       setStartDate(newStartDate);
       setEndDate(newEndDate);
 
-
-
-      // await Promise.all([
-      //   fetchGoodsInWarehouses(),
-      //   // fetchSalesSpeedForWarehouses(newStartDate, newEndDate)
-      //   fetchSalesSpeedForWarehouses()
-
-      // ]);
     } catch (error) {
       console.error('Error updating data: ', error);
     }
@@ -733,65 +726,6 @@ function App() {
     return salesSpeed
   }
 
-
-
-
-
-
-  // function getMaxSales(product) {
-  //   const skuEntry = skus.find(entry => entry.product_id === product.product_id);
-  //   if (!skuEntry) {
-  //     return '-';
-  //   }
-  //   const dailySalesCounts = {};
-
-  //   maxSales.forEach((sale) => {
-  //     //   if (sale.salesWarehouseId === warehouse.warehouse_id) {
-  //         sale.salesSkus.forEach((sku, index) => {
-  //           if (sku === skuEntry.sku) {
-  //             // const salesDate = new Date(sale.salesDate);
-  //             // salesDate.setHours(0, 0, 0, 0);
-  //             // const date = salesDate.toDateString().split('T')[0];
-  //             // const date = salesDate.toISOString().slice(0, 10);
-  //             const date = sale.salesDate.substring(0, 10);
-  //             // console.log(date);
-  //             // Инициализируем счетчик продаж, если он еще не был инициализирован.
-  //             if (!dailySalesCounts[date]) {
-  //               dailySalesCounts[date] = 0;
-  //             }
-  //             // Добавляем продажи к счетчику для соответствующей даты.
-  //             dailySalesCounts[date] += sale.salesQuantities[index];
-  //           }
-  //         });
-  //     // console.log(dailySalesCounts);
-  //     //   }
-  //     });
-  //     // const maxDailySales = Object.values(dailySalesCounts).reduce((max, current) => Math.max(max, current), 0);
-  //     // return maxDailySales;
-
-
-  //   // Находим максимальное количество продаж
-  //   let maxSalesCount = 0;
-  //   for (const date in dailySalesCounts) {
-  //     if (dailySalesCounts.hasOwnProperty(date)) {
-  //       maxSalesCount = Math.max(maxSalesCount, dailySalesCounts[date]);
-  //       // console.log([skuEntry, dailySalesCounts]);
-  //     }
-  //   }
-  //   return maxSalesCount;
-  // }
-  
-  // function getMaxSales(product) {
-  //   const productId = product.offer_id;
-  //   const maxSale = maxSales[productId];
-  
-  //   if (maxSale) {
-  //     return `${maxSale.quantity} (${maxSale.date})`;
-  //   } else {
-  //     return '-';
-  //   }
-  // }
-
   function getMaxSales(product) {
     const skuEntry = skus.find(entry => entry.product_id === product.product_id);
     if (!skuEntry) {
@@ -820,147 +754,18 @@ function App() {
     }
   }
   
-  
-    // function getMaxSales(products) {
-    //   const maxSaless = {};
-    
-    //   // Проходимся по всем товарам
-    //   products.forEach((product) => {
-    //     const skuEntry = skus.find(entry => entry.product_id === product.product_id);
-    //     if (skuEntry) {
-    //       const productId = product.product_id;
-    //       const salesByDate = {};
-    
-    //       // Проходимся по данным о продажах и собираем количество продаж по датам
-    //       maxSales.forEach((sale) => {
-    //         sale.salesSkus.forEach((sku, index) => {
-    //           if (sku === skuEntry.sku) {
-    //             const date = sale.salesDate.split('T')[0]; // Получаем только дату
-    //             if (!salesByDate[date]) {
-    //               salesByDate[date] = 0;
-    //             }
-    //             salesByDate[date] += sale.salesQuantities[index];
-    //           }
-    //         });
-    //       });
-    
-    //       // Записываем объект с датами и количеством продаж для товара
-    //       maxSaless[productId] = salesByDate;
-    //       console.log(maxSaless);
-    //     }
-    //   });
-    
-    //   // return maxSaless;
-    // }
-  
-
-  
-  
-  
-  // function getMaxSales(product) {
-  //       const skuEntry = skus.find(entry => entry.product_id === product.product_id);
-  //   if (!skuEntry) {
-  //     return '-';
-  //   }
-  //   // Assuming `maxSales` holds the allSalesSpeedData aggregated data
-  //   // const relevantSales = maxSales.filter(sale => 
-  //   //   sale.salesSkus.includes(product.product_id)); // Filter out sales data relevant to the product
-  
-  //   // Aggregate sales by date for the specific product
-  //   const salesByDate = {};
-  //   maxSales.forEach(sale => {
-  //                   const salesDate = new Date(sale.salesDate);
-  //             const date = salesDate.toDateString().split('T')[0];
-  //     sale.salesSkus.forEach((sku, index) => {
-  //       if (sku === skuEntry.sku) {
-  //         if (!salesByDate[date]) {
-  //           salesByDate[date] = 0;
-  //         }
-  //         salesByDate[date] += sale.salesQuantities[index]; // Sum up quantities sold by date
-  //       }
-  //     });
-  //   });
-  
-  //   // Find the date with the maximum sales
-  //   const maxSaleEntry = Object.entries(salesByDate).reduce((maxEntry, currentEntry) => {
-  //     if (!maxEntry || currentEntry[1] > maxEntry[1]) {
-  //       return currentEntry;
-  //     } else {
-  //       return maxEntry;
-  //     }
-  //   }, null);
-  
-  //   // Return the max sales amount or a placeholder if there are no sales
-  //   if (maxSaleEntry) {
-  //     return  maxSaleEntry[1];
-  //   } else {
-  //     return '-';
-  //   }
-  // }
-  
-  
-  
-  
-
-
-  // function getMaxSales(product) {
-  //   const skuEntry = skus.find((entry) => entry.product_id === product.product_id);
-  //   if (!skuEntry) {
-  //     return '-';
-  //   }
-    
-  //   const dailySalesCounts = {};
-  
-  //   maxSales.forEach((sale) => {
-  //     sale.salesSkus.forEach((sku, index) => {
-  //       if (sku === skuEntry.sku) {
-  //         let salesDate;
-  //         // Проверяем статусы продажи и выбираем соответствующую дату
-  //         if (sale.salesDateInProcess) {
-  //           salesDate = new Date(sale.salesDateInProcess);
-  //         } else if (sale.salesDateShipment) {
-  //           salesDate = new Date(sale.salesDateShipment);
-  //         } else if (sale.salesDateDelivering) {
-  //           salesDate = new Date(sale.salesDateDelivering);
-  //         }
-  
-  //         // Округляем дату до начала дня, чтобы агрегировать продажи по дням
-  //         // salesDate.setHours(0, 0, 0, 0);
-  //         const date = salesDate.toISOString().split('T')[0];
-  
-  //         // Инициализируем счетчик продаж, если он еще не был инициализирован.
-  //         if (!dailySalesCounts[date]) {
-  //           dailySalesCounts[date] = 0;
-  //         }
-  
-  //         // Добавляем количество продаж к счетчику для соответствующей даты.
-  //         dailySalesCounts[date] += sale.salesQuantities[index];
-  //       }
-  //     });
-  //   });
-  
-  //   // Находим максимальное количество продаж за все дни
-  //   let maxSalesCount = 0;
-  //   for (const date in dailySalesCounts) {
-  //     if (dailySalesCounts.hasOwnProperty(date)) {
-  //       maxSalesCount = Math.max(maxSalesCount, dailySalesCounts[date]);
-  //       console.log(dailySalesCounts);
-  //     }
-  //   }
-  
-  //   return maxSalesCount;
-  // }
-  // const handleSortOrderChange = (order) => {
-  //   setSortOrder(order);
-  // };
-  
-  // const handleMaxSalesSortOrderChange = (order) => {
-  //   setMaxSalesSortOrder(order);
-  // };
-  
   const handleExportToExcel = () => {
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.table_to_sheet(document.querySelector('.table'));
+    
+    const range = XLSX.utils.decode_range(worksheet['!ref']);
+    const autoFilterRange = {
+      s: { c: range.s.c, r: range.s.r + 1 },
+      e: { c: range.e.c, r: range.s.r + 1 }
+    };
+    const autoFilterRef = XLSX.utils.encode_range(autoFilterRange);
+  
+    worksheet['!autofilter'] = { ref: autoFilterRef };
 
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
 
@@ -969,21 +774,6 @@ function App() {
 
   return (
     <div className='App'>
-      {/* <div>
-  <label htmlFor="sortOrder">Сортировка: </label>
-  <select id="sortOrder" onChange={(e) => handleSortOrderChange(e.target.value)}>
-    <option value="asc">А-Я</option>
-    <option value="desc">Я-А</option>
-  </select>
-</div>
-<div>
-  <label htmlFor="maxSalesSortOrder">Сортировка максимальных продаж: </label>
-  <select id="maxSalesSortOrder" onChange={(e) => handleMaxSalesSortOrderChange(e.target.value)}>
-    <option value="desc">От большего к меньшему</option>
-    <option value="asc">От меньшего к большему</option>
-  </select>
-</div> */}
-
       <div className='dates'>
         <div className='dates__container'>
           <label className='dates__title' htmlFor="start">Начало периода:</label>
@@ -1021,23 +811,7 @@ function App() {
             </tr>
           </thead>
           <tbody>
-          {products
-          // .slice()
-          // .sort((a, b) => {
-          //   if (sortOrder === "asc") {
-          //     return a.offer_id.localeCompare(b.offer_id);
-          //   } else {
-          //     return b.offer_id.localeCompare(a.offer_id);
-          //   }
-          // })
-          // .sort((a, b) => {
-          //   if (maxSalesSortOrder === "desc") {
-          //     return getMaxSales(b) - getMaxSales(a);
-          //   } else {
-          //     return getMaxSales(a) - getMaxSales(b);
-          //   }
-          // })
-          .map((product) => {
+          {products.map((product) => {
             const hasValue = warehouses.some(warehouse => {
               const value = getGoodsForWarehouses(product, warehouse, goodsInWarehouses);
               return value !== "-";
