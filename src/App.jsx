@@ -25,6 +25,11 @@ function App() {
   const [startDate, setStartDate] = useState(localStorage.getItem('startDate') || twoWeeksAgo);
   const [endDate, setEndDate] = useState(localStorage.getItem('endDate') || today);
 
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [maxSalesSortOrder, setMaxSalesSortOrder] = useState("desc");
+  
+
+
   function saveDataToStorage(key, data) {
     localStorage.setItem(key, JSON.stringify(data))
   }
@@ -97,9 +102,18 @@ function App() {
           });
           const skuData = await skuResponse.json();
 
+          let sku = skuData.result.sku;
+          if (sku === 0){
+            let fb_skus = skuData.result.sources;
+            fb_skus.forEach(fb => {
+              if (fb.source === "fbs" && fb.is_enabled){
+                sku = fb.sku;
+              }
+            })
+          }
           return {
             product_id: product.product_id,
-            sku: skuData.result.sku
+            sku: sku
           };
         });
         const resolvedSkus = await Promise.all(skusPromises);
@@ -936,7 +950,13 @@ function App() {
   
   //   return maxSalesCount;
   // }
+  // const handleSortOrderChange = (order) => {
+  //   setSortOrder(order);
+  // };
   
+  // const handleMaxSalesSortOrderChange = (order) => {
+  //   setMaxSalesSortOrder(order);
+  // };
   
   const handleExportToExcel = () => {
     const workbook = XLSX.utils.book_new();
@@ -949,6 +969,21 @@ function App() {
 
   return (
     <div className='App'>
+      {/* <div>
+  <label htmlFor="sortOrder">Сортировка: </label>
+  <select id="sortOrder" onChange={(e) => handleSortOrderChange(e.target.value)}>
+    <option value="asc">А-Я</option>
+    <option value="desc">Я-А</option>
+  </select>
+</div>
+<div>
+  <label htmlFor="maxSalesSortOrder">Сортировка максимальных продаж: </label>
+  <select id="maxSalesSortOrder" onChange={(e) => handleMaxSalesSortOrderChange(e.target.value)}>
+    <option value="desc">От большего к меньшему</option>
+    <option value="asc">От меньшего к большему</option>
+  </select>
+</div> */}
+
       <div className='dates'>
         <div className='dates__container'>
           <label className='dates__title' htmlFor="start">Начало периода:</label>
@@ -986,12 +1021,28 @@ function App() {
             </tr>
           </thead>
           <tbody>
-          {products.map((product) => {
+          {products
+          // .slice()
+          // .sort((a, b) => {
+          //   if (sortOrder === "asc") {
+          //     return a.offer_id.localeCompare(b.offer_id);
+          //   } else {
+          //     return b.offer_id.localeCompare(a.offer_id);
+          //   }
+          // })
+          // .sort((a, b) => {
+          //   if (maxSalesSortOrder === "desc") {
+          //     return getMaxSales(b) - getMaxSales(a);
+          //   } else {
+          //     return getMaxSales(a) - getMaxSales(b);
+          //   }
+          // })
+          .map((product) => {
             const hasValue = warehouses.some(warehouse => {
               const value = getGoodsForWarehouses(product, warehouse, goodsInWarehouses);
               return value !== "-";
             });
-            if (hasValue) {
+            // if (hasValue) {
               return (
                 <tr key={product.product_id}>
                   <td>{getMaxSales(product)}</td>
@@ -1010,8 +1061,8 @@ function App() {
                   ))}
                 </tr>
               );
-            }
-              return null
+            // }
+            //   return null
           })}
           </tbody>
         </table>
