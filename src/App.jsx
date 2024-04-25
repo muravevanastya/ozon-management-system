@@ -11,7 +11,8 @@ function App() {
   const API_KEY = config.API_KEY
   const SELLER_ID = config.SELLER_ID
 
-  const [warehouses, setWarehouses] = useState([])  
+  const [warehouses, setWarehouses] = useState([])
+  const [hiddenWarehouses, setHiddenWarehouses] = useState([])
   const [products, setProducts] = useState([])
   const [skus, setSkus] = useState([])
   const [goodsInWarehouses, setGoodsInWarehouses] = useState([])
@@ -25,12 +26,7 @@ function App() {
   const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
   const [startDate, setStartDate] = useState(localStorage.getItem('startDate') || twoWeeksAgo);
   const [endDate, setEndDate] = useState(localStorage.getItem('endDate') || today);
-
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [maxSalesSortOrder, setMaxSalesSortOrder] = useState('asc');
   
-
-
   function saveDataToStorage(key, data) {
     localStorage.setItem(key, JSON.stringify(data))
   }
@@ -632,7 +628,9 @@ function App() {
   }, [skus]);
 
 
-  const handleUpdateData = async (event) => {
+
+
+  const handleUpdateData = async () => {
     try {
       const startDateInput = document.getElementById('start_date');
       const endDateInput = document.getElementById('end_date');
@@ -753,11 +751,64 @@ function App() {
       return '-';
     }
   }
+
+  function hideWarehouses(warehouseId) {
+    setHiddenWarehouses(prevHiddenWarehouses => {
+      if (prevHiddenWarehouses.includes(warehouseId)) {
+        return prevHiddenWarehouses.filter(id => id !== warehouseId);
+      } else {
+        return [...prevHiddenWarehouses, warehouseId];
+      }
+    });
+    saveDataToStorage('hiddenWarehouses', hiddenWarehouses)
+  }
+
+  // useEffect(() => {
+  //   const storedHiddenWarehouses = loadDataFromStorage('hiddenWarehouses' || '[]');
+  //   setHiddenWarehouses(storedHiddenWarehouses)
+  // }, [])
+
+  function restoreAllWarehouses() {
+    setHiddenWarehouses([]);
+    localStorage.removeItem('hiddenWarehouses');
+  };  
   
+  // const handleExportToExcel = () => {
+  //   const table = document.querySelector('.table');
+  //   table.rows[0].cells[3].rowSpan = 0; // Разъединяем ячейку "Артикул озона"
+  //   table.rows[0].cells[4].rowSpan = 0;
+
+  //   const workbook = XLSX.utils.book_new();
+  //   const worksheet = XLSX.utils.table_to_sheet(document.querySelector('.table'));
+    
+  //   const range = XLSX.utils.decode_range(worksheet['!ref']);
+  //   const autoFilterRange = {
+  //     s: { c: range.s.c, r: range.s.r + 1 },
+  //     e: { c: range.e.c, r: range.s.r + 1 }
+  //   };
+  //   const autoFilterRef = XLSX.utils.encode_range(autoFilterRange);
+  
+  //   worksheet['!autofilter'] = { ref: autoFilterRef };
+
+  //   XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+  //   XLSX.writeFile(workbook, 'ozon_table_data.xlsx');
+  // };
+
   const handleExportToExcel = () => {
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.table_to_sheet(document.querySelector('.table'));
-    
+  
+    const mergesToRemove = worksheet['!merges'].filter(merge => {
+      const startColumn = merge.s.c;
+      const endColumn = merge.e.c;
+      return (startColumn === 3 || endColumn === 3) || (startColumn === 2 || endColumn === 2);
+    });
+    mergesToRemove.forEach(merge => {
+      const index = worksheet['!merges'].indexOf(merge);
+      worksheet['!merges'].splice(index, 1);
+    });
+  
     const range = XLSX.utils.decode_range(worksheet['!ref']);
     const autoFilterRange = {
       s: { c: range.s.c, r: range.s.r + 1 },
@@ -766,14 +817,15 @@ function App() {
     const autoFilterRef = XLSX.utils.encode_range(autoFilterRange);
   
     worksheet['!autofilter'] = { ref: autoFilterRef };
-
+  
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-
+  
     XLSX.writeFile(workbook, 'ozon_table_data.xlsx');
   };
 
   return (
     <div className='App'>
+      {/* <button onClick={restoreAllWarehouses}>Восстановить все</button> */}
       <div className='dates'>
         <div className='dates__container'>
           <label className='dates__title' htmlFor="start">Начало периода:</label>
@@ -793,21 +845,43 @@ function App() {
               <th colSpan="2" className='table__title table__title-border'>Максимальные продажи/сутки</th>
               <th rowSpan="2" className='table__title table__title-border'>Скорость продаж</th>
               <th rowSpan="2" className='scrollable'>Артикул Озон</th>
-                {warehouses.map((warehouse) => (
-                  <React.Fragment key={warehouse.warehouse_id}>
-                    <th className='table__title' colSpan="2">{warehouse.name.toUpperCase()}</th>
-                  </React.Fragment>
-                ))}
+              {warehouses.map((warehouse) => {
+                if (!hiddenWarehouses.includes(warehouse.warehouse_id)) {
+                  return (
+                    <React.Fragment key={warehouse.warehouse_id}>
+                      <th colSpan="2" className='table__title'>
+                        {warehouse.name.toUpperCase()}
+                        {/* <button onClick={() => hideWarehouses(warehouse.warehouse_id)}>
+                          ✕
+                        </button> */}
+                      </th>
+                    </React.Fragment>
+                  );
+                }
+                return null;
+              })}
+
             </tr>
             <tr>
               <th className='table__title'>Количество</th>
               <th className='table__title table__title-date'>Дата</th>
-              {warehouses.map((warehouse) => (
+              {warehouses.map((warehouse) => {
+                if (!hiddenWarehouses.includes(warehouse.warehouse_id)) {
+                  return (
+                    <React.Fragment key={warehouse.warehouse_id}>
+                    <th className='table__title'>Доступно к заказу</th>
+                    <th className='table__title'>Скорость продаж</th>
+                  </React.Fragment>
+                  );
+                }
+                return null;
+              })}
+              {/* {warehouses.map((warehouse) => (
                 <React.Fragment key={warehouse.warehouse_id}>
                   <th className='table__title'>Доступно к заказу</th>
                   <th className='table__title'>Скорость продаж</th>
                 </React.Fragment>
-              ))}
+              ))} */}
             </tr>
           </thead>
           <tbody>
@@ -816,14 +890,16 @@ function App() {
               const value = getGoodsForWarehouses(product, warehouse, goodsInWarehouses);
               return value !== "-";
             });
-            // if (hasValue) {
+            if (hasValue) {
               return (
                 <tr key={product.product_id}>
                   <td>{getMaxSales(product)}</td>
                   <td>{getMaxSalesDate(product)}</td>
                   <td>{getSalesSpeed(product)}</td>
                   <td className='table__product scrollable'>{product.offer_id}</td>
-                  {warehouses.map((warehouse) => (
+                  {warehouses.map((warehouse) => {
+                if (!hiddenWarehouses.includes(warehouse.warehouse_id)) {
+                  return (
                     <React.Fragment key={warehouse.warehouse_id}>
                       <td>
                         {getGoodsForWarehouses(product, warehouse, goodsInWarehouses)}
@@ -832,11 +908,24 @@ function App() {
                         {getSalesSpeedForWarehouses(product, warehouse)}
                       </td>
                     </React.Fragment>
-                  ))}
+                  );
+                }
+                return null;
+              })}
+                  {/* {warehouses.map((warehouse) => (
+                    <React.Fragment key={warehouse.warehouse_id}>
+                      <td>
+                        {getGoodsForWarehouses(product, warehouse, goodsInWarehouses)}
+                      </td>
+                      <td>
+                        {getSalesSpeedForWarehouses(product, warehouse)}
+                      </td>
+                    </React.Fragment>
+                  ))} */}
                 </tr>
               );
-            // }
-            //   return null
+            }
+              return null
           })}
           </tbody>
         </table>
