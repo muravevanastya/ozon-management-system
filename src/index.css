@@ -54,6 +54,19 @@ thead {
 
 .table__title {
   padding: 10px;
+  position: relative;
+}
+
+.table__title-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  top: 0px;
+  right: 4px;
+  padding: 0;
+  font-size: 18px;
+  color: grey
 }
 
 .table__title-date {
@@ -74,6 +87,10 @@ thead {
   left: 0;
   background-color: white;
   background-color: #f7f7f7;
+}
+
+.scrollable.title {
+  z-index: 3
 }
 
 .dates {
@@ -121,6 +138,10 @@ thead {
   opacity: 0.7;
 }
 
-.dates__button:last-of-type {
+.dates__button:nth-child(4) {
+  margin-left: 80px;
+}
+
+.dates__button:nth-child(5) {
   margin-left: 100px;
 }

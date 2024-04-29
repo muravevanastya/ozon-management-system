@@ -694,6 +694,21 @@ function App() {
     return salesSpeed
   }
 
+  function calculateRatio(product, warehouse) {
+    const goods = getGoodsForWarehouses(product, warehouse, goodsInWarehouses);
+    const salesSpeed = getSalesSpeedForWarehouses(product, warehouse)
+
+    let result = salesSpeed !== 0 ? goods / salesSpeed : "-";
+
+    if (!isFinite(result)) {
+      result = "-";
+    } else {
+      result = Number.isInteger(result) ? result : parseFloat(result.toFixed(1));
+    }
+
+    return result;
+  }
+
   function getSalesSpeed(product) {
     const skuEntry = skus.find(entry => entry.product_id === product.product_id);
     if (!skuEntry) {
@@ -753,47 +768,27 @@ function App() {
   }
 
   function hideWarehouses(warehouseId) {
-    setHiddenWarehouses(prevHiddenWarehouses => {
-      if (prevHiddenWarehouses.includes(warehouseId)) {
-        return prevHiddenWarehouses.filter(id => id !== warehouseId);
-      } else {
-        return [...prevHiddenWarehouses, warehouseId];
-      }
-    });
-    saveDataToStorage('hiddenWarehouses', hiddenWarehouses)
+    let updatedHiddenWarehouses;
+    if (hiddenWarehouses.includes(warehouseId)) {
+      updatedHiddenWarehouses = hiddenWarehouses.filter(id => id !== warehouseId);
+    } else {
+      updatedHiddenWarehouses = [...hiddenWarehouses, warehouseId];
+    }
+    setHiddenWarehouses(updatedHiddenWarehouses);
+    saveDataToStorage('hiddenWarehouses', updatedHiddenWarehouses)
   }
 
-  // useEffect(() => {
-  //   const storedHiddenWarehouses = loadDataFromStorage('hiddenWarehouses' || '[]');
-  //   setHiddenWarehouses(storedHiddenWarehouses)
-  // }, [])
+  useEffect(() => {
+    const storedHiddenWarehouses = loadDataFromStorage('hiddenWarehouses' || '[]');
+    if (storedHiddenWarehouses) {
+      setHiddenWarehouses(storedHiddenWarehouses)
+    }
+  }, [])
 
   function restoreAllWarehouses() {
     setHiddenWarehouses([]);
     localStorage.removeItem('hiddenWarehouses');
   };  
-  
-  // const handleExportToExcel = () => {
-  //   const table = document.querySelector('.table');
-  //   table.rows[0].cells[3].rowSpan = 0; // Разъединяем ячейку "Артикул озона"
-  //   table.rows[0].cells[4].rowSpan = 0;
-
-  //   const workbook = XLSX.utils.book_new();
-  //   const worksheet = XLSX.utils.table_to_sheet(document.querySelector('.table'));
-    
-  //   const range = XLSX.utils.decode_range(worksheet['!ref']);
-  //   const autoFilterRange = {
-  //     s: { c: range.s.c, r: range.s.r + 1 },
-  //     e: { c: range.e.c, r: range.s.r + 1 }
-  //   };
-  //   const autoFilterRef = XLSX.utils.encode_range(autoFilterRange);
-  
-  //   worksheet['!autofilter'] = { ref: autoFilterRef };
-
-  //   XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-
-  //   XLSX.writeFile(workbook, 'ozon_table_data.xlsx');
-  // };
 
   const handleExportToExcel = () => {
     const workbook = XLSX.utils.book_new();
@@ -825,7 +820,7 @@ function App() {
 
   return (
     <div className='App'>
-      {/* <button onClick={restoreAllWarehouses}>Восстановить все</button> */}
+      {/* <button className='dates__button' onClick={restoreAllWarehouses}>Восстановить склады</button> */}
       <div className='dates'>
         <div className='dates__container'>
           <label className='dates__title' htmlFor="start">Начало периода:</label>
@@ -837,6 +832,7 @@ function App() {
         </div>
         <button className='dates__button' onClick={handleUpdateData}>Обновить данные</button>
         <button className='dates__button' onClick={handleExportToExcel}>Скачать .xlsx</button>
+      <button className='dates__button' onClick={restoreAllWarehouses}>Восстановить склады</button>
       </div>
       <div className='body'>
         <table className='table'>
@@ -844,16 +840,14 @@ function App() {
             <tr>
               <th colSpan="2" className='table__title table__title-border'>Максимальные продажи/сутки</th>
               <th rowSpan="2" className='table__title table__title-border'>Скорость продаж</th>
-              <th rowSpan="2" className='scrollable'>Артикул Озон</th>
+              <th rowSpan="2" className='scrollable title'>Артикул Озон</th>
               {warehouses.map((warehouse) => {
                 if (!hiddenWarehouses.includes(warehouse.warehouse_id)) {
                   return (
                     <React.Fragment key={warehouse.warehouse_id}>
-                      <th colSpan="2" className='table__title'>
+                      <th colSpan="3" className='table__title'>
                         {warehouse.name.toUpperCase()}
-                        {/* <button onClick={() => hideWarehouses(warehouse.warehouse_id)}>
-                          ✕
-                        </button> */}
+                        <button className='table__title-button' onClick={() => hideWarehouses(warehouse.warehouse_id)}>&times;</button>
                       </th>
                     </React.Fragment>
                   );
@@ -871,6 +865,7 @@ function App() {
                     <React.Fragment key={warehouse.warehouse_id}>
                     <th className='table__title'>Доступно к заказу</th>
                     <th className='table__title'>Скорость продаж</th>
+                    <th className='table__title'>На сколько дней хватит:</th>
                   </React.Fragment>
                   );
                 }
@@ -906,6 +901,9 @@ function App() {
                       </td>
                       <td>
                         {getSalesSpeedForWarehouses(product, warehouse)}
+                      </td>
+                      <td>
+                        {calculateRatio(product, warehouse)}
                       </td>
                     </React.Fragment>
                   );
