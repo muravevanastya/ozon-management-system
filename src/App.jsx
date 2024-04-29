@@ -865,7 +865,7 @@ function App() {
                     <React.Fragment key={warehouse.warehouse_id}>
                     <th className='table__title'>Доступно к заказу</th>
                     <th className='table__title'>Скорость продаж</th>
-                    <th className='table__title'>На сколько дней хватит:</th>
+                    <th className='table__title'>На сколько дней хватит</th>
                   </React.Fragment>
                   );
                 }
