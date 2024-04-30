@@ -694,7 +694,7 @@ function App() {
     return salesSpeed
   }
 
-  function calculateRatio(product, warehouse) {
+  function calculateForHowManyDaysAvailableForWarehouses(product, warehouse) {
     const goods = getGoodsForWarehouses(product, warehouse, goodsInWarehouses);
     const salesSpeed = getSalesSpeedForWarehouses(product, warehouse)
 
@@ -767,6 +767,32 @@ function App() {
     }
   }
 
+  function totalGoodsAvailable(product, warehouse, goodsInWarehouses) {
+    let totalAvailable = 0
+    warehouses.forEach(warehouse => {
+      const available = getGoodsForWarehouses(product, warehouse, goodsInWarehouses)
+      if(!isNaN(available)) {
+        totalAvailable += available
+      }
+    })
+    return totalAvailable
+  }
+
+  function calculateForHowManyDaysAvailable(product, warehouse) {
+    const goods = totalGoodsAvailable(product, warehouse, goodsInWarehouses);
+    const salesSpeed = getSalesSpeed(product)
+
+    let result = salesSpeed !== 0 ? goods / salesSpeed : "-";
+
+    if (!isFinite(result)) {
+      result = "-";
+    } else {
+      result = Number.isInteger(result) ? result : parseFloat(result.toFixed(1));
+    }
+
+    return result;
+  }
+
   function hideWarehouses(warehouseId) {
     let updatedHiddenWarehouses;
     if (hiddenWarehouses.includes(warehouseId)) {
@@ -797,7 +823,7 @@ function App() {
     const mergesToRemove = worksheet['!merges'].filter(merge => {
       const startColumn = merge.s.c;
       const endColumn = merge.e.c;
-      return (startColumn === 3 || endColumn === 3) || (startColumn === 2 || endColumn === 2);
+      return (startColumn === 5 || endColumn === 5) || (startColumn === 4 || endColumn === 4) || (startColumn === 3 || endColumn === 3) || (startColumn === 2 || endColumn === 2);
     });
     mergesToRemove.forEach(merge => {
       const index = worksheet['!merges'].indexOf(merge);
@@ -840,6 +866,8 @@ function App() {
             <tr>
               <th colSpan="2" className='table__title table__title-border'>Максимальные продажи/сутки</th>
               <th rowSpan="2" className='table__title table__title-border'>Скорость продаж</th>
+              <th rowSpan="2" className='table__title table__title-border'>Общий остаток по складам</th>
+              <th rowSpan="2" className='table__title table__title-border'>На сколько дней хватит</th>
               <th rowSpan="2" className='scrollable title'>Артикул Озон</th>
               {warehouses.map((warehouse) => {
                 if (!hiddenWarehouses.includes(warehouse.warehouse_id)) {
@@ -880,7 +908,7 @@ function App() {
             </tr>
           </thead>
           <tbody>
-          {products.map((product) => {
+          {products.map((product, warehouse) => {
             const hasValue = warehouses.some(warehouse => {
               const value = getGoodsForWarehouses(product, warehouse, goodsInWarehouses);
               return value !== "-";
@@ -891,6 +919,8 @@ function App() {
                   <td>{getMaxSales(product)}</td>
                   <td>{getMaxSalesDate(product)}</td>
                   <td>{getSalesSpeed(product)}</td>
+                  <td>{totalGoodsAvailable(product, warehouse, goodsInWarehouses)}</td>
+                  <td>{calculateForHowManyDaysAvailable(product, warehouse)}</td>
                   <td className='table__product scrollable'>{product.offer_id}</td>
                   {warehouses.map((warehouse) => {
                 if (!hiddenWarehouses.includes(warehouse.warehouse_id)) {
@@ -903,7 +933,7 @@ function App() {
                         {getSalesSpeedForWarehouses(product, warehouse)}
                       </td>
                       <td>
-                        {calculateRatio(product, warehouse)}
+                        {calculateForHowManyDaysAvailableForWarehouses(product, warehouse)}
                       </td>
                     </React.Fragment>
                   );
