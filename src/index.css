@@ -125,7 +125,7 @@ thead {
   border: 2px solid rgba(0, 0, 0, 0.6);
   border-radius: 3px;
   font-family: sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   background: none;
   padding: 0 8px;
   height: 32px;
@@ -144,4 +144,28 @@ thead {
 
 .dates__button:nth-child(5) {
   margin-left: 100px;
+}
+
+/* .table__dash {
+  position: relative;
+}
+
+.dash {
+  position: absolute;
+  top: 0;
+  left: 0;
+} */
+
+.table__delete-row {
+  width: 20px; /* Ширина столбца для кнопки удаления */
+}
+
+.delete-button {
+  padding: 0px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #5e5d5c;
+  /* color: red; */
 }

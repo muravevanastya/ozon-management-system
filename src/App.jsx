@@ -13,6 +13,7 @@ function App() {
 
   const [warehouses, setWarehouses] = useState([])
   const [hiddenWarehouses, setHiddenWarehouses] = useState([])
+  const [hiddenProducts, setHiddenProducts] = useState([])
   const [products, setProducts] = useState([])
   const [skus, setSkus] = useState([])
   const [goodsInWarehouses, setGoodsInWarehouses] = useState([])
@@ -208,117 +209,7 @@ function App() {
         console.error('Error fetching sales speed for warehouses: ', error);
       }
     }
-    
-    
-    // }, [warehouses, startDate])
 
-    // fetchSalesSpeedForWarehouses()
-// (async () => {
-//   await fetchSalesSpeedForWarehouses();
-// })();
-
-    // if (warehouses.length > 0 && startDate && endDate) { // Проверяем, что данные складов получены и даты выбраны
-    //   fetchSalesSpeedForWarehouses(startDate, endDate); // Передаем выбранные даты в функцию запроса
-    // }
-
-    // if (!startDate || !endDate) {
-    //   // alert("Please select both start and end dates.");
-    //   return;
-    // }
-    
-  // }, [warehouses])
-
-
-
-  // async function fetchMaxSales() {
-  //   try {
-  //     const statusList = [
-  //       "awaiting_packaging",
-  //       "awaiting_deliver",
-  //       "delivering", 
-  //       "delivered"
-  //     ];
-  
-  //     const allSalesData = {};
-  
-  //     const warehouseIds = warehouses.map(warehouse => warehouse.warehouse_id.toString());
-  //     const today = new Date();
-  //     today.setUTCHours(23, 59, 59, 999);
-  //     // const ninetyDaysAgo = new Date(today);
-  //     const ninetyDaysAgo = new Date();
-  //     ninetyDaysAgo.setDate(today.getDate() - 10)
-  //     ninetyDaysAgo.setUTCHours(0, 0, 0, 0);
-  
-  //     const salesPromises = statusList.map(async (status) => {
-  //       const response = await fetch('https://api-seller.ozon.ru/v3/posting/fbs/list', {
-  //         method: 'POST',
-  //         headers: {
-  //           'Content-type': 'application/json',
-  //           'Api-Key': API_KEY,
-  //           'Client-Id': SELLER_ID
-  //         },
-  //         body: JSON.stringify({
-  //           "dir": "ASC",
-  //           "filter": {
-  //             "since": ninetyDaysAgo.toISOString(),
-  //             "status": status,
-  //             "to": today.toISOString(),
-  //             "warehouse_id": warehouseIds
-  //           },
-  //           "limit": 1000,
-  //           "offset": 0
-  //         })
-  //       });
-  //       const data = await response.json();
-  //       if (data && data.result && data.result.postings) {
-  //         data.result.postings.forEach(operation => {
-  //           operation.products.forEach(product => {
-  //             const salesDate = new Date(operation.in_process_at).toISOString().slice(0, 10);
-  //             const productId = product.offer_id;
-  //             const quantity = product.quantity;
-  
-  //             if (!allSalesData[productId]) {
-  //               allSalesData[productId] = [];
-  //             }
-  // console.log(allSalesData);
-  //             const existingSale = allSalesData[productId].find(sale => sale.date === salesDate);
-  //             if (existingSale) {
-  //               existingSale.quantity += quantity;
-  //             } else {
-  //               allSalesData[productId].push({ date: salesDate, quantity: quantity });
-  //             }
-  //           });
-  //         });
-  //       }
-  //     });
-  
-  //     await Promise.all(salesPromises);
-  
-  //     // Найдем максимальное количество продаж для каждого товара
-  //     const maxSales = {};
-  //     for (const productId in allSalesData) {
-  //       const sales = allSalesData[productId];
-  //       let maxQuantity = 0;
-  //       let maxDate = '';
-  //       sales.forEach(sale => {
-  //         if (sale.quantity > maxQuantity) {
-  //           maxQuantity = sale.quantity;
-  //           maxDate = sale.date;
-  //         }
-  //       });
-  //       maxSales[productId] = { date: maxDate, quantity: maxQuantity };
-  //     }
-  
-  //     // console.log('Max Sales:', maxSales);
-  //     saveDataToStorage('maxSales', maxSales);
-  //     setMaxSales(maxSales)
-  
-  //   } catch (error) {
-  //     console.error('Error fetching max sales: ', error);
-  //   }
-  // }
-
-  
   async function fetchMaxSales() {
     // await new Promise(resolve => setTimeout(resolve, 100));
     try {
@@ -393,122 +284,6 @@ function App() {
       console.error('Error fetching max sales: ', error);
     }
   }
-  
-  
-
-//   async function fetchMaxSales() {
-//     // const fetchSalesSpeedForWarehouses = useCallback(async () => {
-
-//     await new Promise(resolve => setTimeout(resolve, 100));
-
-//     try {
-//       setMaxSales([])
-//       const statusList = [
-//         "awaiting_packaging",
-//         "awaiting_deliver",
-//         "delivering", 
-//         "delivered"
-//       ];
-//       const allSalesSpeedData = [];
-//       const warehouseIds = warehouses.map(warehouse => warehouse.warehouse_id.toString());
-//       // const warehouseIds = warehouses.filter(warehouse => warehouse.warehouse_id != null).map(warehouse => warehouse.warehouse_id.toString());
-
-//       const today = new Date();
-//       today.setUTCHours(23, 59, 59, 999);
-//       const ninetyDaysAgo = new Date(today);
-//       ninetyDaysAgo.setDate(today.getDate() - 90)
-//       ninetyDaysAgo.setUTCHours(0, 0, 0, 0);
-
-//       // today.setDate(today.getDate() - 1)
-
-//       // const sinceDate = new Date(startDate).toISOString();
-//       // const endDate = moment.tz('Europe/Moscow').toISOString();
-//       // const endDateObj = new Date(endDate);
-//       // endDateObj.setUTCHours(23, 59, 0, 0); // Устанавливаем часы на 23, минуты на 59, секунды и миллисекунды на 0
-//       // const toDate = endDateObj.toISOString();
-      
-//       // const toDate = new Date(endDate).toISOString()
-//       // const toDate = new Date(endDate).toISOString();
-//       // today.setHours(today.getUTCHours() + 3);
-// //         const sinceDate = convertDateToUTCString(startDate); // Преобразование выбранной пользователем даты
-// // const toDate = convertDateToUTCString(endDate);
-
-      
-//       // const chunkSize = 2; // Размер части, с которым API работает корректно
-//       // for (let i = 0; i < warehouseIds.length; i += chunkSize) {
-//       //   const warehouseIdsChunk = warehouseIds.slice(i, i + chunkSize);
-//         const salesSpeedPromises = statusList.map(async (status) => {
-//           if (warehouseIds.length > 0) {
-//             const since = "2024-04-02T00:00:00.000Z";
-//             const to = "2024-04-05T23:59:59.000Z"
-//             const response = await fetch('https://api-seller.ozon.ru/v3/posting/fbs/list', {
-//               method: 'POST',
-//               headers: {
-//                 'Content-type': 'application/json',
-//                 'Api-Key': API_KEY,
-//                 'Client-Id': SELLER_ID
-//               },
-//               body: JSON.stringify({
-//                 "dir": "ASC",
-//                 "filter": {
-//                   "since": ninetyDaysAgo.toISOString(),
-//                   // "since": since,
-//                   "status": status,
-//                   "to": today.toISOString(),
-//                   // "to": to,
-//                   "warehouse_id": warehouseIds
-//                   // "warehouse_id": ["1020000964079000"]
-//                 },
-//                 "limit": 1000,
-//                 "offset": 0
-//               })
-//             });
-//             const data = await response.json();
-//             const processedOrderIds = [];
-//             if (data && data.result && data.result.postings) {
-//               data.result.postings.forEach(operation => {
-//                 // if (!processedOrderIds.includes(operation.order_id)) {
-//                   const salesSpeedData = {
-//                     salesSkus: operation.products.map(product => product.sku),
-//                     salesQuantities: operation.products.map(product => product.quantity),
-//                     // salesOrderId: operation.order_id,
-//                     // salesStatus: operation.status,
-//                     // salesWarehouseId: operation.delivery_method.warehouse_id,
-//                     salesDate: operation.in_process_at,
-//                     // salesDateInProcess: operation.in_process_at,
-//                     // salesDateShipment: operation.shipment_date,
-//                     // salesDateDelivering: operation.delivering_date,
-//                     // posting_number: operation.posting_number,
-//                   };
-//                   allSalesSpeedData.push(salesSpeedData);
-//                   processedOrderIds.push(operation.order_id);                  
-//                 // }
-//                 // console.log(ninetyDaysAgo, today);
-//               });
-              
-//             }
-//           }
-//           // await Promise.all(salesSpeedPromises);
-  
-//         })
-//           await Promise.all(salesSpeedPromises);
-
-//       // }
-
-//     // let indeh = 0;
-//       // console.log(allSalesSpeedData); 
-//       // console.log(warehouseIds);
-//       // console.log(today, ninetyDaysAgo);
-//       // console.log(today, weekStartDate);
-//       setMaxSales(allSalesSpeedData)    
-//       saveDataToStorage('maxSales', allSalesSpeedData);
-//       // saveDataToStorage('salesForWarehouses', allSalesSpeedData);
-//       // console.log('salesForWarehouses');
-
-//     } catch (error) {
-//       console.error('Error fetching sales speed for warehouses: ', error);
-//     }
-//   }
 
   // useEffect(() => {
     // const fetchGoodsInWarehouses = useCallback(async () => {
@@ -626,9 +401,6 @@ function App() {
       ]);
     }
   }, [skus]);
-
-
-
 
   const handleUpdateData = async () => {
     try {
@@ -816,6 +588,43 @@ function App() {
     localStorage.removeItem('hiddenWarehouses');
   };  
 
+  function hideProducts(productId) {
+    let updatedHiddenProducts;
+    if (hiddenProducts.includes(productId)) {
+      updatedHiddenProducts = hiddenProducts.filter((id) => id !== productId);
+    } else {
+      updatedHiddenProducts = [...hiddenProducts, productId];
+    }
+    setHiddenProducts(updatedHiddenProducts);
+    saveDataToStorage('hiddenProducts', updatedHiddenProducts)
+  }
+
+  // function hideProducts(productId) {
+  //   setHiddenProducts([...hiddenProducts, productId])
+  //   const updatedProducts = products.filter((product) => product.product_id !== productId);
+    
+  //   setProducts(updatedProducts);
+  //   saveDataToStorage('hiddenProducts', [...hiddenProducts, productId]);
+  //   // saveDataToStorage('hiddenProducts', updatedProducts)
+  // };
+
+  // useEffect(() => {
+  //   saveDataToStorage('hiddenProducts', hiddenProducts)
+  // }, [hiddenProducts]);
+
+  useEffect(() => {
+    const storedHiddenProducts = loadDataFromStorage('hiddenProducts' || '[]');
+    if (storedHiddenProducts) {
+      setHiddenProducts(storedHiddenProducts)
+    }
+  }, [])
+
+  function restoreAllProducts() {
+    setHiddenProducts([]);
+    localStorage.removeItem('hiddenProducts');
+  }; 
+
+
   const handleExportToExcel = () => {
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.table_to_sheet(document.querySelector('.table'));
@@ -823,7 +632,7 @@ function App() {
     const mergesToRemove = worksheet['!merges'].filter(merge => {
       const startColumn = merge.s.c;
       const endColumn = merge.e.c;
-      return (startColumn === 5 || endColumn === 5) || (startColumn === 4 || endColumn === 4) || (startColumn === 3 || endColumn === 3) || (startColumn === 2 || endColumn === 2);
+      return (startColumn === 6 || endColumn === 6) || (startColumn === 5 || endColumn === 5) || (startColumn === 4 || endColumn === 4) || (startColumn === 3 || endColumn === 3) || (startColumn === 2 || endColumn === 2);
     });
     mergesToRemove.forEach(merge => {
       const index = worksheet['!merges'].indexOf(merge);
@@ -846,7 +655,6 @@ function App() {
 
   return (
     <div className='App'>
-      {/* <button className='dates__button' onClick={restoreAllWarehouses}>Восстановить склады</button> */}
       <div className='dates'>
         <div className='dates__container'>
           <label className='dates__title' htmlFor="start">Начало периода:</label>
@@ -859,11 +667,13 @@ function App() {
         <button className='dates__button' onClick={handleUpdateData}>Обновить данные</button>
         <button className='dates__button' onClick={handleExportToExcel}>Скачать .xlsx</button>
       <button className='dates__button' onClick={restoreAllWarehouses}>Восстановить склады</button>
+      <button className='dates__button' onClick={restoreAllProducts}>Восстановить товары</button>
       </div>
       <div className='body'>
         <table className='table'>
           <thead>
             <tr>
+              <th rowSpan="2"></th>
               <th colSpan="2" className='table__title table__title-border'>Максимальные продажи/сутки</th>
               <th rowSpan="2" className='table__title table__title-border'>Скорость продаж</th>
               <th rowSpan="2" className='table__title table__title-border'>Общий остаток по складам</th>
@@ -899,23 +709,14 @@ function App() {
                 }
                 return null;
               })}
-              {/* {warehouses.map((warehouse) => (
-                <React.Fragment key={warehouse.warehouse_id}>
-                  <th className='table__title'>Доступно к заказу</th>
-                  <th className='table__title'>Скорость продаж</th>
-                </React.Fragment>
-              ))} */}
             </tr>
           </thead>
           <tbody>
           {products.map((product, warehouse) => {
-            const hasValue = warehouses.some(warehouse => {
-              const value = getGoodsForWarehouses(product, warehouse, goodsInWarehouses);
-              return value !== "-";
-            });
-            if (hasValue) {
+            if (!hiddenProducts.includes(product.product_id)) {
               return (
                 <tr key={product.product_id}>
+                  <td className='delete-button' onClick={() => hideProducts(product.product_id)}>&times;</td>
                   <td>{getMaxSales(product)}</td>
                   <td>{getMaxSalesDate(product)}</td>
                   <td>{getSalesSpeed(product)}</td>
@@ -923,37 +724,35 @@ function App() {
                   <td>{calculateForHowManyDaysAvailable(product, warehouse)}</td>
                   <td className='table__product scrollable'>{product.offer_id}</td>
                   {warehouses.map((warehouse) => {
-                if (!hiddenWarehouses.includes(warehouse.warehouse_id)) {
-                  return (
-                    <React.Fragment key={warehouse.warehouse_id}>
-                      <td>
-                        {getGoodsForWarehouses(product, warehouse, goodsInWarehouses)}
-                      </td>
-                      <td>
-                        {getSalesSpeedForWarehouses(product, warehouse)}
-                      </td>
-                      <td>
-                        {calculateForHowManyDaysAvailableForWarehouses(product, warehouse)}
-                      </td>
-                    </React.Fragment>
-                  );
-                }
-                return null;
+                    if (!hiddenWarehouses.includes(warehouse.warehouse_id)) {
+                      return (
+                        <React.Fragment key={warehouse.warehouse_id}>
+                          <td>
+                            {getGoodsForWarehouses(product, warehouse, goodsInWarehouses)}
+                          </td>
+                          <td>
+                            {getSalesSpeedForWarehouses(product, warehouse)}
+                          </td>
+                          <td>
+                            {calculateForHowManyDaysAvailableForWarehouses(product, warehouse)}
+                          </td>
+                        </React.Fragment>
+                      );
+                    }
+                  return null;
               })}
-                  {/* {warehouses.map((warehouse) => (
-                    <React.Fragment key={warehouse.warehouse_id}>
-                      <td>
-                        {getGoodsForWarehouses(product, warehouse, goodsInWarehouses)}
-                      </td>
-                      <td>
-                        {getSalesSpeedForWarehouses(product, warehouse)}
-                      </td>
-                    </React.Fragment>
-                  ))} */}
                 </tr>
               );
             }
-              return null
+            return null
+            // const hasValue = warehouses.some(warehouse => {
+            //   const value = getGoodsForWarehouses(product, warehouse, goodsInWarehouses);
+            //   return value !== "-";
+            // });
+            // if (hasValue) {
+              
+            // }
+              // return null
           })}
           </tbody>
         </table>
